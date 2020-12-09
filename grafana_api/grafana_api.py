@@ -1,6 +1,17 @@
 import requests
 import requests.auth
+# import logging
 
+
+# try:
+#     import http.client as http_client
+# except ImportError:
+#     # Python 2
+#     import httplib as http_client
+# http_client.HTTPConnection.debuglevel = 1
+# requests_log = logging.getLogger("requests.packages.urllib3")
+# requests_log.setLevel(logging.DEBUG)
+# requests_log.propagate = True
 
 class GrafanaException(Exception):
     def __init__(self, status_code, response, message):
@@ -59,13 +70,14 @@ class TokenAuth(requests.auth.AuthBase):
 class GrafanaAPI:
     def __init__(
         self,
-        auth,
+        auth=None,
         host="localhost",
         port=None,
         url_path_prefix="",
         protocol="http",
         verify=True,
         timeout=5.0,
+        options=None
     ):
         self.auth = auth
         self.verify = verify
@@ -93,10 +105,14 @@ class GrafanaAPI:
         self.url = construct_api_url()
 
         self.s = requests.Session()
-        if not isinstance(self.auth, tuple):
-            self.auth = TokenAuth(self.auth)
+        if 'headers' in options:
+          self.s.headers.update(options['headers'])
         else:
-            self.auth = requests.auth.HTTPBasicAuth(*self.auth)
+            if not isinstance(self.auth, tuple):
+                self.auth = TokenAuth(self.auth)
+            else:
+                self.auth = requests.auth.HTTPBasicAuth(*self.auth)
+
 
     def __getattr__(self, item):
         def __request_runnner(url, json=None, headers=None):

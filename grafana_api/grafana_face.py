@@ -19,13 +19,14 @@ from .api import (
 class GrafanaFace:
     def __init__(
         self,
-        auth,
+        auth=None,
         host="localhost",
         port=None,
         url_path_prefix="",
         protocol="http",
         verify=True,
         timeout=5.0,
+        options=None
     ):
         self.api = GrafanaAPI(
             auth,
@@ -35,6 +36,7 @@ class GrafanaFace:
             protocol=protocol,
             verify=verify,
             timeout=timeout,
+            options=options,
         )
         self.admin = Admin(self.api)
         self.dashboard = Dashboard(self.api)
